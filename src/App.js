@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import Board from "./Components/Board";
+import GameBoard from "./Components/GameBoard";
 import Rules from "./Components/Rules";
 import { Button } from 'reactstrap';
 
@@ -10,7 +10,7 @@ function App() {
       <header className="App-header">
         <p>Conway's Game of Life</p>
         <Rules/>
-        <Board/>
+        <GameBoard/>
         <br/>
         <Button>Play</Button>
         <br/>
