@@ -5,36 +5,59 @@ const CELL_SIZE = 20;
 const WIDTH = 800;
 const HEIGHT = 600;
 
-// const [cell, setCells ] useState something simple I am missing with declaration, need to figure it out
-
 const GameBoard = () => {
 
-    this.rows = HEIGHT / CELL_SIZE;
-    this.cols = WIDTH / CELL_SIZE;
-    this.board = makeEmptyBoard()
+    let rows = HEIGHT / CELL_SIZE;
+    let cols = WIDTH / CELL_SIZE;
+    let boardRef = []
+    const [cells, setCells ] = useState({
+        isRunning: false,
+        cell: [],
+        interval: 100
+    }); 
 
-    const { cells } = this.state;
+    const runGame = () => {
+        setCells({
+            isRunning: true
+        });
+    }
+
+    const stopGame = () => {
+        setCells({
+            isRunning: false
+        });
+    }
+
+    const handleIntervalChange = (event) => {
+        setCells({
+            interval: event.target.value
+        });
+    }
+
+    // const { cells } = this.state;
 
 
     const makeEmptyBoard = () => {
         let board = [];
 
-        for (let y = 0; y < this.rows; y++) {
+        for (let y = 0; y < rows; y++) {
             board[y] = []
 
-            for (let x = 0; x < this.cols; x++) {
+            for (let x = 0; x < cols; x++) {
                 board[y][x] = false;
             }
             return board;
         }
     }
 
+    let board = makeEmptyBoard()
+
     const makeCells = () => {
         let cells = [];
 
-        for (let y = 0; y < this.rows; y++) {
-            for (let x = 0; x < this.cols; x++) {
-                if (this.board[y][x]) {
+        for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < cols; x++) {
+                if (board[y][x]) {
                     cells.push({ x, y });
                 }
 
@@ -45,7 +68,7 @@ const GameBoard = () => {
 
     const getElementOffset = () => {
 
-        const rect = this.boardRef.getBoundingClientRect();
+        const rect = boardRef.getBoundingClientRect();
         const doc = document.documentElement;
 
         return {
@@ -57,22 +80,22 @@ const GameBoard = () => {
     }
 
     const handleClick = (event) => {
-        const elemOffset = this.getElementOffset();
+        const elemOffset = getElementOffset();
         const offsetX = event.clientX - elemOffset.x;
         const offsetY = event.clientY - elemOffset.y;
         const x = Math.floor(offsetX / CELL_SIZE);
         const y = Math.floor(offsetY / CELL_SIZE);
 
-        if (x >= 0 && x <= this.cols && y >= 0 && y <= this.rows) {
-            this.board[y][x] = !this.board[y][x];
+        if (x >= 0 && x <= cols && y >= 0 && y <= rows) {
+            board[y][x] = !board[y][x];
         }
 
-        this.setState({ cells: makeCells() });
+        setCells({ cells: makeCells() });
     }
 
-    const Cell = () => {
+    const Cell = (props) => {
 
-        const { x, y } = this.props;
+        const { x, y } = props;
 
         return (
             <div className="Cell" style={{ left: `${CELL_SIZE * x + 1}px}`, top: `${CELL_SIZE * y + 1} px`, width: `${CELL_SIZE - 1}px`, height: `${CELL_SIZE - 1}px`, }}>
@@ -89,10 +112,10 @@ const GameBoard = () => {
                         width: WIDTH, height: HEIGHT,
                         backgroundSize: `${CELL_SIZE}px ${CELL_SIZE}px`
                     }}
-                onClick={handleClick} ref={(n) => { this.boardRef = n; }}>
+                onClick={handleClick} ref={(n) => { boardRef = n; }}>
                 {cells.map(cell => (
                     <Cell x={cell.x} y={cell.y}
-                        key={`{$cell.x}}, ${cell.y}`} />
+     add                    key={`{$cell.x}}, ${cell.y}`} />
                 ))}
             </div>
         </div>
