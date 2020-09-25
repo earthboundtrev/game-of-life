@@ -1,43 +1,117 @@
 import React, { useState } from 'react';
 import '../App.css';
+import { Button } from 'reactstrap';
+import Cell from './Cell';
 
 const CELL_SIZE = 20;
 const WIDTH = 800;
 const HEIGHT = 600;
+
+// const Cell = (props) => {
+
+//     const { x, y } = props;
+
+//     return (
+//         <div className="Cell" style={{ left: `${CELL_SIZE * x + 1}px}`, top: `${CELL_SIZE * y + 1} px`, width: `${CELL_SIZE - 1}px`, height: `${CELL_SIZE - 1}px`, }}>
+
+//         </div>
+//     )
+// }
 
 const GameBoard = () => {
 
     let rows = HEIGHT / CELL_SIZE;
     let cols = WIDTH / CELL_SIZE;
     let boardRef = []
-    const [cells, setCells ] = useState({
+    const [cells, setCells] = useState({
         isRunning: false,
         cell: [],
         interval: 100
-    }); 
+    });
 
-    const runGame = () => {
-        setCells({
-            isRunning: true
-        });
+    let calculateNeighbors = (board, x, y) => {
+        let neighbors = 0;
+        const dirs = [[-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [1, -1], [0, -1]];
+        for (let i = 0; i < dirs.length; i++) {
+            const dir = dirs[i];
+            let y1 = y + dir[0];
+            let x1 = x + dir[1];
+
+            if (x1 >= 0 && x1 < cols && y1 >= 0 && y1 < rows && board[y1][x1]) {
+                neighbors++;
+            }
+        }
+
+        return neighbors;
     }
 
-    const stopGame = () => {
+    let runIteration = () => {
+
+        console.log('running iteration');
+
+        let newBoard = makeEmptyBoard()
+
+        board = newBoard;
+
+        setCells({
+            cells: makeCells()
+        });
+
+        for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < cols; x++) {
+                let neighbors = calculateNeighbors(board, x, y);
+                if (board[y][x]) {
+                    if (neighbors === 2 || neighbors === 3) {
+                        newBoard[y][x] = true;
+                    }
+                    else {
+                        newBoard[y][x] = false;
+                    }
+                }
+                else {
+                    if (board[y][x] && neighbors === 3) {
+                        newBoard[y][x] = true;
+                    }
+                }
+            }
+        }
+
+
+
+    let timeoutHandler = () => { window.setTimeout(() => {
+            runIteration();
+        },
+            cells.interval
+        );
+    }
+    }
+    let runGame = () => {
+
+        setCells({
+            isRunning: true
+        })
+
+        runIteration();
+    }
+
+    let stopGame = () => {
         setCells({
             isRunning: false
         });
+
+        if (timeoutHandler) {
+            window.clearTimeout(timeoutHandler)
+            timeoutHandler = null;
+        }
     }
 
-    const handleIntervalChange = (event) => {
+    let handleIntervalChange = (event) => {
         setCells({
             interval: event.target.value
         });
     }
 
-    // const { cells } = this.state;
-
-
-    const makeEmptyBoard = () => {
+    let makeEmptyBoard = () => {
         let board = [];
 
         for (let y = 0; y < rows; y++) {
@@ -52,7 +126,7 @@ const GameBoard = () => {
 
     let board = makeEmptyBoard()
 
-    const makeCells = () => {
+    let makeCells = () => {
         let cells = [];
 
         for (let y = 0; y < rows; y++) {
@@ -66,7 +140,7 @@ const GameBoard = () => {
         return cells;
     }
 
-    const getElementOffset = () => {
+    let getElementOffset = () => {
 
         const rect = boardRef.getBoundingClientRect();
         const doc = document.documentElement;
@@ -79,7 +153,7 @@ const GameBoard = () => {
 
     }
 
-    const handleClick = (event) => {
+    let handleClick = (event) => {
         const elemOffset = getElementOffset();
         const offsetX = event.clientX - elemOffset.x;
         const offsetY = event.clientY - elemOffset.y;
@@ -93,15 +167,17 @@ const GameBoard = () => {
         setCells({ cells: makeCells() });
     }
 
-    const Cell = (props) => {
+    let handleClear = (event) => {
+        setCells({ interval: event.target.value })
+    }
 
-        const { x, y } = props;
-
-        return (
-            <div className="Cell" style={{ left: `${CELL_SIZE * x + 1}px}`, top: `${CELL_SIZE * y + 1} px`, width: `${CELL_SIZE - 1}px`, height: `${CELL_SIZE - 1}px`, }}>
-
-            </div>
-        )
+    let handleRandom = () => {
+        for (let y = 0; y < rows; y++) {
+            for (let x = 0; x < cols; x++) {
+                board[y][x] = (Math.random() >= 0.5)
+            }
+        }
+        setCells({ cells: makeCells })
     }
 
     return (
@@ -115,10 +191,16 @@ const GameBoard = () => {
                 onClick={handleClick} ref={(n) => { boardRef = n; }}>
                 {cells.map(cell => (
                     <Cell x={cell.x} y={cell.y}
-     add                    key={`{$cell.x}}, ${cell.y}`} />
+                        key={`{$cell.x}}, ${cell.y}`} />
                 ))}
             </div>
-        </div>
+            <div className="controls"> Update every <input value={cells.interval} onChange={handleIntervalChange} /> msec
+            {cells.isRunning ? <Button onClick={stopGame}>Stop</Button> : <Button onClick={runGame}>Play</Button>}
+                <Button onClick={handleRandom}>Random</Button>
+                <Button onClick={handleClear}>Clear</Button>
+
+            </div>
+        </div >
     )
 }
 

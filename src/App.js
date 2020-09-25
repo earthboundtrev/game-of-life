@@ -12,9 +12,7 @@ function App() {
         <Rules/>
         <GameBoard/>
         <br/>
-        <Button>Play</Button>
         <br/>
-        <Button>Stop</Button>
       </header>
     </div>
   );
