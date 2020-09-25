@@ -2,8 +2,6 @@ import React from "react";
 import '../App.css';
 
 const CELL_SIZE = 20;
-const WIDTH = 800;
-const HEIGHT = 600;
 
 const Cell = (props) => {
 
